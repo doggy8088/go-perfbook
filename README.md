@@ -10,7 +10,8 @@ The later sections cover Go-specific techniques.
 ### Multiple Language Versions
 
 * [English](performance.md)
-* [中文](performance-zh.md)
+* [簡體中文](performance-zh.md)
+* [正體中文](performance-zh-tw.md)
 * [Español](README-es.md)
 
 ### Table of Contents
