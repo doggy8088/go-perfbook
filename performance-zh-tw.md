@@ -454,16 +454,21 @@ https://godoc.org/github.com/aclements/go-perf
 - 什麼導致堆分配？
 - 瞭解逃逸分析(和當前的限制)
 - /debug/pprof/heap和-base
-- API設計限制分配：允許傳入緩衝區，因此呼叫者可以重用而不是強制分配
-- 你甚至可以在掃描時仔細修改切片
+- API設計限制分配：
+  - 允許傳入緩衝區，因此呼叫者可以重用而不是強制分配
+  - 你甚至可以在掃描時仔細修改切片
+  - passing in a struct could allow caller to stack allocate it
 - 減少指標以減少gc掃描時間
-- 無指標的map鍵
+  - 無指標的切片
+  - 無指標的key與value的map
 - GOGC
 - 緩衝區重用(sync.Pool vs或透過go-slab等自訂)
-- 切片與偏移量：當GC執行時指標寫入需要writebarrier：https ： //github.com/golang/go/commit/b85433975aedc2be2971093b6bbb0a7dc264c8fd
+- 切片與偏移量：當GC執行時指標寫入需要writebarrier：[https：//github.com/golang/go/commit/b85433975aedc2be2971093b6bbb0a7dc264c8fd](https://github.com/golang/go/commit/b85433975aedc2be2971093b6bbb0a7dc264c8fd)
+  - no writebarrier if writing to stack [https://github.com/golang/go/commit/2140975ebde164ea1eaa70fc72775c03567f2bc9](https://github.com/golang/go/commit/2140975ebde164ea1eaa70fc72775c03567f2bc9)
 - 使用錯誤變數而不是errors.New（）/ fmt.Errorf（）在呼叫站點（效能或風格？介面需要指標，所以它轉義為堆）
 - 使用結構化的錯誤來減少分配（傳遞結構值），在錯誤列印時建立字串
-- 大小端
+- size classes
+- beware pinning larger allocation with smaller substrings or slices
 
 
 
@@ -472,8 +477,8 @@ https://godoc.org/github.com/aclements/go-perf
 - runtime.convT2E/runtime.convT2I
 - 型別斷言與型別切換
 - 延緩
-- 用於整數，字串的特殊對映實現
-    - byte/uint16的對映未優化; 改用切片。
+- 用於整數，字串的特殊map實現
+    - byte/uint16的map未優化; 改用切片。
     - 你可以使用math.Float{32,64}{from,}bits優化float64-optimized ，但要注意浮動平等問題
     - https://github.com/dgryski/go-gk/blob/master/exact.go 據說快100倍; 需要效能測試(benchmarks)
 - 邊界檢查消除
@@ -487,13 +492,13 @@ https://godoc.org/github.com/aclements/go-perf
 - 它所有的危險項
 - unsafe的常見用途
 - mmap資料檔案
-    - 結構填充
+    - 結構的補齊
     - 但並不總是足夠快以證明覆雜性/安全成本
     - 但是「off-heap」，所以被gc忽略（但是沒有指標的slice）
 - 快速反序列化
 - string <-> slice 轉換，[]byte <-> []uint32，...
 - int到bool是不安全的hack (但 != 0是可以的)
-- 填充：
+- 結構的補齊：
     - https://dave.cheney.net/2015/10/09/padding-is-hard
     - http://www.catb.org/esr/structure-packing/#_go_and_rust
     - https://golang.org/ref/spec#Size_and_alignment_guarantees
@@ -507,6 +512,7 @@ https://godoc.org/github.com/aclements/go-perf
 - 考慮交替隨機數產生(go-pcgr，xorshift)
 - binary.Read和binary.Write使用反射並且很慢; 手動做
 - 如果可能，請使用strconv而不是fmt
+- 如果可能，請使用 strings.EqualFold(str1, str2) 取代 instead of strings.ToLower(str1) == strings.ToLower(str2) 或 strings.ToUpper(str1) == strings.ToUpper(str2)   更有效地做字串比對。
 - ....
 
 ## 替代實現
@@ -523,11 +529,12 @@ https://godoc.org/github.com/aclements/go-perf
 - container/list：使用切片（幾乎總是）
 
 ## CGO
+> cgo 不是 go -- Rob Pike
 
 - cgo呼叫的效能特徵
-- 降低成本的技巧：配料
+- 降低成本的技巧：批次
 - Go和C之間傳遞指標的規則
-- syso檔案
+- syso檔案(race detector, dev.boringssl)
 
 ## 進階技術
 
@@ -538,7 +545,7 @@ https://godoc.org/github.com/aclements/go-perf
   - 圍繞快取行建構直覺：大小，填充，對齊
   - 共享假
   - 真正的共享 ->分片
-  - OS工具來檢視快取未命中
+  - OS工具來檢視快取未命中 (perf)
   - Mao與切片
   - SOA vs AOS佈局
   - 減少指標追逐
