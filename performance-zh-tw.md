@@ -56,7 +56,7 @@
 
 你應該優化嗎？
 
-> 是的，但是只有當問題很重要時，程式真的太慢了​​，並且能夠在維持正確性、穩定性和程式可讀性的同時變得更快。
+> 是的，但是只有當問題很重要時，程式真的太慢了，並且能夠在維持正確性、穩定性和程式可讀性的同時變得更快。
 > -- The Practice of Programming, Kernighan and Pike
 
 過早優化 (Premature optimization) 會把你綁在特定決策模式，進而傷害軟體的可維護性。優化過的代碼通常會讓需求發生改變時更難修改，如果需要丟棄時，也會更難痛下決心丟棄不用(沉默成本謬誤)。
@@ -76,7 +76,8 @@
 優化是一種重構。但是，每一步不是改進原始碼的某些方面（程式碼重複，清晰度等），而是可以提高效能的某些方面：降低 CPU、記憶體使用率、降低延遲等。這種改進通常以可讀性為代價。這意味著除了一套全面的單元測試（以確保你的更改沒有破壞任何內容）之外，你還需要一套很好的效能測試(benchmarks)，以確保您的更改對效能產生預期的影響。你必須能夠驗證您的更改是否真的在降低 CPU。有時候你認為會改善效能的變化實際上會變成零或負變化。在這些情況下，務必確保撤消修改的程式。
 
 <cite>[What is the best comment in source code you have ever encountered? - Stack Overflow](https://stackoverflow.com/questions/184618/what-is-the-best-comment-in-source-code-you-have-ever-encountered)</cite>:
-<pre>
+
+```js
 //
 // Dear maintainer:
 //
@@ -87,7 +88,7 @@
 //
 // total_hours_wasted_here = 42
 //
-</pre>
+```
 
 你使用的效能測試(benchmarks)必須正確，並為代表性工作負載提供可重複的數字。如果單個的執行差異太大，則會使得小的改進更難以發現。你將需要使用[benchstat](https://golang.org/x/perf/benchstat)或等效的統計測試，而不能只是用眼睛去看(請注意，使用統計測試無論如何都是一個好主意)。應該記錄執行效能測試(benchmarks)的步驟，並且應該向儲存函式庫提交任何自訂指令碼和工具，並提供如何執行它們的說明。要注意需要很長時間才能執行的大型效能測試(benchmarks)套件：它會使開發迭代變慢。
 
@@ -144,11 +145,12 @@ TODO：在gttse07.pdf中優化浮點FFT和MMM演算法的差異
 Jon Bentley在1982年的作品「撰寫高效程式」將程式優化視為一個工程問題：基準。分析。提高。校驗。迭代。他的一些技巧現在由編譯器自動完成。程式設計師的工作是使用編譯器無法做到的轉換。
 
 本書的摘要如下：
-- http://www.crowl.org/lawrence/programming/Bentley82.html
-- http://www.geoffprewett.com/BookReviews/WritingEfficientPrograms.html
+
+- <http://www.crowl.org/lawrence/programming/Bentley82.html>
+- <http://www.geoffprewett.com/BookReviews/WritingEfficientPrograms.html>
 
 和程式調整規則：
-https://web.archive.org/web/20080513070949/http://www.cs.bell-labs.com/cm/cs/pearls/apprules.html
+<https://web.archive.org/web/20080513070949/http://www.cs.bell-labs.com/cm/cs/pearls/apprules.html>
 
 在考慮對程式進行更改時，有兩個基本選項：你可以更改資料，也可以更改程式碼。
 
@@ -169,21 +171,24 @@ https://web.archive.org/web/20080513070949/http://www.cs.bell-labs.com/cm/cs/pea
 - 程序內快取，但現在你需要擔心到期
 - 即使是單個專案也可以幫助(日誌檔案時間解析示例)
 
-TODO：「快取」可能不是鍵值對，只是指向你工作的地方。這可以像「搜尋手指」一樣簡單
+當這些資料的儲存成本低、容易維持更新版本時，這些改變是相當有用的。
 
-這些都是資料結構層面「做更少工作」的明確例子。他們都花費空間。大多數情況下，如果你針對CPU進行優化，程式將使用更多的記憶體。這是經典的[時空交易](https://en.wikipedia.org/wiki/Space%E2%80%93time_tradeoff)
+在資料結構的層面來說，這些都是「做更少」的明確範例，他們都會佔用空間，而且大部分情況下，當你對 CPU 進行優化時，你的程式都會用到更多記憶體。這就是經典的「拿空間換時間」([space-time trade-off](https://en.wikipedia.org/wiki/Space%E2%80%93time_tradeoff))。
 
 如果你的程式使用太多的記憶體，也可以換個方式。減少空間使用量以換取更多計算。而不是儲存的東西，每次計算它們。你還可以壓縮記憶體中的資料，並在需要時隨時對其進行解壓縮。
 
-[小記憶體軟體](https://gamehacking.org/faqs/Small_Memory_Software.pdf)是一本網上可獲取的書籍，涵蓋了減少程式使用記憶體空間的技術。雖然它最初是針對嵌入式開發人員撰寫的，但這些想法適用於處理大量資料的現代硬體的程式。
+[記憶體受限系統](https://gamehacking.org/faqs/Small_Memory_Software.pdf)是一本網上可獲取的書籍，涵蓋了減少程式使用記憶體空間的技術。雖然它最初是針對嵌入式開發人員撰寫的，但這些想法適用於處理大量資料的現代硬體的程式。
 
 - 重新排列你的資料
+
     消除結構填充。刪除額外的欄位。使用較小的資料型別
 
 - 更改為較慢的資料結構
+
     較簡單的資料結構通常具有較低的記憶體要求。例如，從一個指標重的樹結構轉向使用切片和線性搜尋。
 
-- 為你的資料訂製壓縮格式
+- 為你的資料客製化壓縮格式
+
     []位元組（snappy，gzip，lz4），浮點數（go-tsz），整數（delta，xor + huffman）大量的壓縮資源。你需要檢查資料還是可以保持壓縮？你需要隨機訪問還是只有流媒體？壓縮具有額外索引的塊。如果不是在程序中，而是寫入磁碟，那麼遷移或新增/刪除欄位呢？你現在正在處理raw []位元組而不是很好的結構化Go型別。
 
 我們稍後會詳細討論資料佈局。
@@ -239,7 +244,7 @@ TODO：如何模擬滿足的快取，顯示增量成本
 
 選擇最簡單的合理資料結構並繼續。這是用於撰寫「非慢速軟體」的CS 101。這應該是您的預設開發模式。如果您知道需要隨機訪問，請不要選擇連結列表。如果您知道需要按順序遍歷，請不要使用地圖。需求變化，你不能總是猜測未來。對工作量做出合理的猜測。
 
-http://daslab.seas.harvard.edu/rum-conjecture/
+<http://daslab.seas.harvard.edu/rum-conjecture/>
 
 類似問題的資料結構在做一件工作時會有所不同。隨著插入的發生，二叉樹每次排序一次。未排序的陣列插入速度更快但未排序：最後，「敲定」你需要一次完成排序。
 
@@ -286,13 +291,13 @@ http://daslab.seas.harvard.edu/rum-conjecture/
 撰寫好的效能測試(benchmarks)可能很困難。
 TODO：microbenchmarks顯示速度減慢但巨集觀（現實世界）效能提高的情況。
 
-- https://timharris.uk/misc/five-ways.pdf
+- <https://timharris.uk/misc/five-ways.pdf>
 
 ## 程式調整
 
 程式調優曾經是一種藝術形式，但編譯器變得更好。所以現在事實證明，編譯器可以比複雜的程式碼更好地直接優化程式碼。Go編譯器在匹配gcc和clang方面還有很長的路要走，但這確實意味著在調整時需要小心，特別是在升級Go版本時不要變得更糟。一旦編譯器得到改進，肯定會出現一些針對缺少特定編譯器優化工作的調整。
 
-TODO：https ： //github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff293856955f8）
+TODO：<https://github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff293856955f8>）
 
 如果你正在解決特定的執行時或編譯器程式碼產生問題，請始終使用指向上游問題的連結記錄你的更改。這可以讓你在bug修復後快速重新訪問你的優化。
 
@@ -302,7 +307,7 @@ TODO：https ： //github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff2938
 
 一旦你確定了正確的演算法，程式調優就是改進演算法實現的過程。在Big-O表示法中，這是減少與程式相關的常量的過程。
 
-所有的節目調整都要麼讓速度變慢，要麼減慢速度。演算法變化也屬於這些類別，但我們將看到較小的變化。你的具體做法隨技術變化而變化。
+所有程式的效能調教，不是將效能差的部分變快，就是讓效率差的部分減少執行次數。演算法的改變也屬於這部分，但我們會更專注在微小的改變。你的確切做法會隨著技術變化而有所不同。
 
 做一個緩慢的事情可能會用更快的雜湊函式替換SHA1或者hash/fnv1。少做一次緩慢的事情可能會節省一個大檔案的雜湊計算結果，因此你不必多次執行該操作。
 
@@ -313,8 +318,7 @@ TODO：https ： //github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff2938
 
 「正確性」可以取決於問題。啟發式演算法大多數情況下是正確的，大部分時間都可以很快，而且猜測和改進的演算法可以讓您在達到可接受的限制時停下來。
 
-
-快取常見情況：
+快取的常見情況：
 
 - 你的快取甚至不需要很大。
 - 參見下面的 time.Parse（）例子; 只有一個價值觀產生了影響
@@ -322,47 +326,48 @@ TODO：https ： //github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff2938
 - 隨機快取驅逐是快速且足夠有效的。
 - 隨機快取插入可以用最少的邏輯將快取限制為流行的專案。
 - 將快取邏輯的成本與重新獲取資料的成本進行比較。
-- 大容量快取可能會增加GC壓力並不斷吹動處理器快取。
-- 在極端情況下（很少或沒有驅逐，將所有請求快取到一個昂貴的函式），這可以變成記憶
-
+- 大型的快取物件可能會增加 GC 壓力。在極端的案例中(鮮少或從不清楚快取、快取所有執行成本高的函式)，這些都會進入**記憶化**([Memoization](https://en.wikipedia.org/wiki/Memoization))的情境。
 
 我已經完成了一個網路追蹤實驗，表明即使是最佳的快取也不值得。你的預期命中率很重要。你需要將比率匯出到你的監控堆疊。不斷變化的比例將顯示流量的變化。然後是重新訪問快取大小或過期策略的時候了。
 
 程式調優：
 
 程式調優是以小步驟迭代改程序序的藝術。Egon Elbre列出了他的程式：
+
 - 提出一個假設，為什麼你的程式很慢。
 - 拿出N個解決方案來解決它
 - 嘗試一切，並保持最快。
 - 以防萬一。
 - 重複。
 
-調整可以採取多種形式。
+調校可以採取多種形式。
 
 - 如果可能，請保留舊的實現以進行測試。
 - 如果不可能，則產生足夠的黃金測試用例來比較輸出。
-「足夠」意味著包括邊緣案例，因為這些可能會受到調優的影響，因為您旨在提高一般情況下的效能。
-- 利用數學身份：
-https://github.com/golang/go/commit/ed6c6c9c11496ed8e458f6e0731103126ce60223
-https://gist.github.com/dgryski/67e6a7ff94c3a1add30eb26ec0ad8b0f
+- 「足夠」意味著包括極端案例(edge cases)，因為這些可能會受到調優的影響，因為您旨在提高一般情況下的效能。
+- 利用數學的特性：
+  - 注意：實作與優化數值計算幾乎是一個專門的領域
+    - <https://github.com/golang/go/commit/ed6c6c9c11496ed8e458f6e0731103126ce60223>
+    - <https://gist.github.com/dgryski/67e6a7ff94c3a1add30eb26ec0ad8b0f>
     - 與加法相乘
-    - 使用WolframAlpha，Maxima，sympy和類似工具來專門化，優化或建立查詢表
-（另外，https://users.ece.cmu.edu/~franzf/papers/gttse07.pdf）
-    - 「只為你使用的東西付費，而不是你可以使用的東西」
-    - 零隻是陣列的一部分，而不是整個事物
-    - 最好以微小的步驟完成，一次只做幾個陳述
+    - 使用 WolframAlpha，Maxima，sympy 和類似工具來專門化，優化或建立查詢表
+    - （還有這份文件 👉 <https://users.ece.cmu.edu/~franzf/papers/gttse07.pdf>）
     - 從浮點數學到整數數學
-    - 或者mandelbrot刪除sqrt，或者lttb刪除abs， a < b/c=>a - c < b
-    - 在更昂貴的支票前進行廉價支票
-    - 例如，在正則表示式之前的strcmp，（qv，在查詢之前的布隆過濾器）「少花費更多時間」
-    - 在罕見情況之前的常見情況，即避免總是失敗的額外測試
-    - 展開仍然有效：https://play.golang.org/p/6tnySwNxG6O
-    - 程式碼大小。vs分支測試開銷
-    - 使用偏移而不是切片分配可以幫助進行邊界檢查，資料依賴性和程式碼產生（少於在內部迴圈中複製）。
-    - 這就是Hacker's Delight的一部分
-    - 考慮不同的數字表示法：定點，浮點，（小）整數，
-    - 愛好者：帶誤差累加器的整數（如Bresenham的線和圓），多基數/冗餘數字系統
-
+    - 或者 mandelbrot 刪除 sqrt，或者 lttb 刪除 abs，`a < b/c` => `a - c < b`
+    - 考慮不同的數值表示法：固定點數、浮點數、（更小的）整數
+    - 愛好者：帶誤差累加器的整數（如 Bresenham 的線和圓），多基數/冗餘數值系統
+  - 「只為你使用的東西付費，而不是你可以使用的東西」
+    - zero only part of an array, rather than the whole thing
+  - 從微小的調整開始，一次只調整幾個陳述式
+  - 便宜的條件檢查優先於昂貴的條件檢查
+    - 例如：採用 strcmp 優於 regexp ，（參見: bloom filter before query）、讓效率差的部分減少執行次數("do expensive things fewer times")
+  - 先處理常見的案例，再處理罕見的案例。例如：避開永遠會失敗的測試案例
+  - 展開仍然有效：<https://play.golang.org/p/6tnySwNxG6O>
+    - 程式碼大小 與 各種判斷條件 的間接成本 (code size vs. branch test overhead)
+  - 使用偏移(offsets)優於切片(slice)，這對進行邊界檢查有幫助，資料依賴性和程式碼產生器（少於在內部迴圈中複製）。
+  - 移除迴圈中的 **邊界檢查**(bounds check) 與 **空值檢查**(nil checks): <https://go-review.googlesource.com/c/go/+/151158>
+  - 其他可以證明有效的小技巧
+  - this is where pieces of Hacker's Delight fall
 
 許多針對調優的民間傳說效能提示依賴於對編譯器的優化不足，並鼓勵程式設計師手動完成這些轉換。編譯器一直在使用更新，而不是用15年的時間乘以或除以2的冪 - 現在沒有人應該親自去做。類似地，提升迴圈中的不變計算，基本迴圈展開，常見子表示式消除等等都是由gcc和clang等自動完成的。Go的編譯器完成了其中的許多工作，並繼續改進。一如往常，在提交新版本之前進行效能測試(benchmarks)。
 
@@ -405,23 +410,24 @@ TODO：字串偏移版本的程式碼示例
 所有優化都應遵循以下步驟：
 
 1. 確定你的表現目標，並確認你沒有達到他們的目標
-1. 配置檔案來識別要改進的區域。
-1. 這可以是CPU，堆分配或goroutine阻塞。
-1. 基準來確定您的解決方案使用內建效能測試(benchmarks)框架提供的加速<http://golang.org/pkg/testing/>
-1. 確保您在目標作業系統和體系結構上進行正確的效能測試(benchmarks)。
-1. 之後再次進行配置以驗證問題已消失
-1. 使用<https://godoc.org/golang.org/x/perf/benchstat>或<https://github.com/codahale/tinystat>來驗證一組時間「充分」不同，以便優化值得新增程式碼複雜性。
-1. 使用<https://github.com/tsenart/vegeta>負載測試http服務（+其他花哨的：k6，fortio，...）
-1. 確保你的延遲數字是有意義的
-1. 第一步很重要。它會告訴您何時何地開始優化。更重要的是，它還會告訴你何時停止。幾乎所有優化都會增加程式碼的複雜性以換取速度。而且你總是可以更快地撰寫程式碼。這是一個平衡的行為。
+2. 配置檔案來識別要改進的區域。
+3. 這可以是CPU，堆分配或goroutine阻塞。
+4. 基準來確定您的解決方案使用內建效能測試(benchmarks)框架提供的加速<http://golang.org/pkg/testing/>
+5. 確保您在目標作業系統和體系結構上進行正確的效能測試(benchmarks)。
+6. 之後再次進行配置以驗證問題已消失
+7. 使用<https://godoc.org/golang.org/x/perf/benchstat>或<https://github.com/codahale/tinystat>來驗證一組時間「充分」不同，以便優化值得新增程式碼複雜性。
+8. 使用<https://github.com/tsenart/vegeta>負載測試http服務（+其他花哨的：k6，fortio，...）
+9. 確保你的延遲數字是有意義的
+10. 第一步很重要。它會告訴您何時何地開始優化。更重要的是，它還會告訴你何時停止。幾乎所有優化都會增加程式碼的複雜性以換取速度。而且你總是可以更快地撰寫程式碼。這是一個平衡的行為。
 
 ## 工具
 
 ### 介紹性分析
+
 一般適用於原始碼的技術
 
 1. 介紹pprof
-    - Go工具pprof(https://github.com/google/pprof)
+    - Go工具pprof(<https://github.com/google/pprof>)
 1. 撰寫和執行(微)基準
     - 簡介，將hot code提取到基準，優化基準，配置檔案。
     - -cpuprofile/-memprofile/-benchmem
@@ -441,14 +447,14 @@ TODO：字串偏移版本的程式碼示例
 - /x/perf中的其他工具
 - perf（perf2pprof）
 - 英特爾vtune/amd codexl/instruments
-https://godoc.org/github.com/aclements/go-perf
+<https://godoc.org/github.com/aclements/go-perf>
 
-## 垃圾收集
+## 垃圾回收機制 (Garbage Collection)
 
-你不止一次支付記憶體分配。第一個顯然是你分配它的時候。但是，每次垃圾收集執行時，你也要付出代價。
+你必須為超過一次的**記憶體配置**(memory allocation)付出成本。第一次當然是你進行初始化配置記憶體的時候，但是，你肯定也要在每次執行**垃圾回收機制**(GC)執行時付出代價。
 
-
-減少回收再利用。 - @bboreham
+> Reduce/Reuse/Recycle.
+> -- <cite>@bboreham</cite>
 
 - 堆疊與堆分配
 - 什麼導致堆分配？
@@ -456,26 +462,27 @@ https://godoc.org/github.com/aclements/go-perf
 - /debug/pprof/heap和-base
 - API設計限制分配：允許傳入緩衝區，因此呼叫者可以重用而不是強制分配
 - 你甚至可以在掃描時仔細修改切片
-- 減少指標以減少gc掃描時間
-- 無指標的map鍵
+- 減少指標以減少 GC 掃描時間
+  - 減少使用 `[]*Struct` (pointer-free slices)
+  - 減少使用 `map[*key]` 或 `*value` (maps with both pointer-free keys and values)
 - GOGC
 - 緩衝區重用(sync.Pool vs或透過go-slab等自訂)
-- 切片與偏移量：當GC執行時指標寫入需要writebarrier：https ： //github.com/golang/go/commit/b85433975aedc2be2971093b6bbb0a7dc264c8fd
-- 使用錯誤變數而不是errors.New（）/ fmt.Errorf（）在呼叫站點（效能或風格？介面需要指標，所以它轉義為堆）
+- 切片與偏移量：當GC執行時指標寫入需要writebarrier：<https://github.com/golang/go/commit/b85433975aedc2be2971093b6bbb0a7dc264c8fd>
+- 使用錯誤變數而不是 `errors.New()` / `fmt.Errorf()` 在呼叫端（效能或風格？介面需要指標，所以它轉義為 heap）
 - 使用結構化的錯誤來減少分配（傳遞結構值），在錯誤列印時建立字串
-- 大小端
+- size classes
+- beware pinning larger allocation with smaller substrings or slices
 
+## 執行環境和編譯器 (Runtime and compiler)
 
-
-## 執行時和編譯器
 - 透過介面呼叫的成本(在CPU級別上的間接呼叫)
 - runtime.convT2E/runtime.convT2I
 - 型別斷言與型別切換
 - 延緩
 - 用於整數，字串的特殊對映實現
-    - byte/uint16的對映未優化; 改用切片。
-    - 你可以使用math.Float{32,64}{from,}bits優化float64-optimized ，但要注意浮動平等問題
-    - https://github.com/dgryski/go-gk/blob/master/exact.go 據說快100倍; 需要效能測試(benchmarks)
+  - byte/uint16的對映未優化; 改用切片。
+  - 你可以使用math.Float{32,64}{from,}bits優化float64-optimized ，但要注意浮動平等問題
+  - <https://github.com/dgryski/go-gk/blob/master/exact.go> 據說快100倍; 需要效能測試(benchmarks)
 - 邊界檢查消除
 - []位元組<->字串副本，Map優化
 - 雙值的range將複製一個數組，使用sclice替代：
@@ -484,23 +491,25 @@ https://godoc.org/github.com/aclements/go-perf
 - 儘可能使用字串連線而不是fmt.Sprintf; 執行時為它已經優化了例程
 
 ## Unsafe
+
 - 它所有的危險項
 - unsafe的常見用途
 - mmap資料檔案
-    - 結構填充
-    - 但並不總是足夠快以證明覆雜性/安全成本
-    - 但是「off-heap」，所以被gc忽略（但是沒有指標的slice）
+  - 結構填充
+  - 但並不總是足夠快以證明覆雜性/安全成本
+  - 但是「off-heap」，所以被gc忽略（但是沒有指標的slice）
 - 快速反序列化
 - string <-> slice 轉換，[]byte <-> []uint32，...
 - int到bool是不安全的hack (但 != 0是可以的)
 - 填充：
-    - https://dave.cheney.net/2015/10/09/padding-is-hard
-    - http://www.catb.org/esr/structure-packing/#_go_and_rust
-    - https://golang.org/ref/spec#Size_and_alignment_guarantees
-    - https://github.com/dominikh/go-tools 結構佈局，結構佈局優化
-    - 透過Offsetof對結構佈局進行編碼以發現unsafe和asm破損
+  - <https://dave.cheney.net/2015/10/09/padding-is-hard>
+  - <http://www.catb.org/esr/structure-packing/#_go_and_rust>
+  - <https://golang.org/ref/spec#Size_and_alignment_guarantees>
+  - <https://github.com/dominikh/go-tools> 結構佈局，結構佈局優化
+  - 透過Offsetof對結構佈局進行編碼以發現unsafe和asm破損
 
 ## 與標準函式庫共同陷阱
+
 - time.After()洩漏，直到它被觸發
 - 重用HTTP連線...
 - rand.Int()和朋友是1)互斥體保護和2)建立昂貴
@@ -510,14 +519,15 @@ https://godoc.org/github.com/aclements/go-perf
 - ....
 
 ## 替代實現
+
 - 標準函式庫軟體套件的普遍替代品：
-    - encoding/json -> ffjson
-    - net/http -> fasthttp(但不相容的API)
-    - regexp -> ragel(或其他正則表示式包)
+  - encoding/json -> ffjson
+  - net/http -> fasthttp(但不相容的API)
+  - regexp -> ragel(或其他正則表示式包)
 - 序列化
-    - encoding/gob - > https://github.com/alecthomas/go_serialization_benchmarks
-    - protobuf - > https://github.com/gogo/protobuf
-    - 所有格式都有權衡：選擇一種符合你需要的編碼空間，解碼速度，語言/工具相容性......
+  - encoding/gob - > <https://github.com/alecthomas/go_serialization_benchmarks>
+  - protobuf - > <https://github.com/gogo/protobuf>
+  - 所有格式都有權衡：選擇一種符合你需要的編碼空間，解碼速度，語言/工具相容性......
 - database/sql - > jackx/pgx，...
 - gccgo
 - container/list：使用切片（幾乎總是）
