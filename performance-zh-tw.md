@@ -493,15 +493,15 @@ TODO：字串偏移版本的程式碼示例
 ## Unsafe
 
 - 它所有的危險項
-- unsafe的常見用途
-- mmap資料檔案
+- `unsafe` 的常見用途
+- `mmap` 資料檔案
   - 結構填充
   - 但並不總是足夠快以證明覆雜性/安全成本
   - 但是「off-heap」，所以被gc忽略（但是沒有指標的slice）
 - 快速反序列化
-- string <-> slice 轉換，[]byte <-> []uint32，...
-- int到bool是不安全的hack (但 != 0是可以的)
-- 填充：
+- `string` <-> `slice` 轉換，`[]byte` <-> `[]uint32`，...
+- `int` 到 `bool` 是不安全的 `hack` (但 `!= 0` 是可以的)
+- 填充 (padding)：
   - <https://dave.cheney.net/2015/10/09/padding-is-hard>
   - <http://www.catb.org/esr/structure-packing/#_go_and_rust>
   - <https://golang.org/ref/spec#Size_and_alignment_guarantees>
@@ -510,12 +510,12 @@ TODO：字串偏移版本的程式碼示例
 
 ## 與標準函式庫共同陷阱
 
-- time.After()洩漏，直到它被觸發
+- `time.After()` 洩漏，直到它被觸發
 - 重用HTTP連線...
-- rand.Int()和朋友是1)互斥體保護和2)建立昂貴
-- 考慮交替隨機數產生(go-pcgr，xorshift)
-- binary.Read和binary.Write使用反射並且很慢; 手動做
-- 如果可能，請使用strconv而不是fmt
+- `rand.Int()` 和朋友是 1) 互斥體保護 和 2) 建立昂貴
+- 考慮交替隨機數產生(`go-pcgr`, `xorshift`)
+- `binary.Read` 和 `binary.Write` 使用反射並且很慢; 手動做
+- 如果可能，請使用 `strconv` 而不是 `fmt`
 - ....
 
 ## 替代實現
@@ -532,18 +532,21 @@ TODO：字串偏移版本的程式碼示例
 - gccgo
 - container/list：使用切片（幾乎總是）
 
-## CGO
+## cgo
 
-- cgo呼叫的效能特徵
-- 降低成本的技巧：配料
-- Go和C之間傳遞指標的規則
-- syso檔案
+> cgo is not go
+> -- <cite>Rob Pike</cite>
+
+- `cgo` 呼叫的效能特徵
+- 降低成本的技巧：batching
+- Go 和 C 之間傳遞指標的規則
+- syso files (race detector, dev.boringssl)
 
 ## 進階技術
 
 特定於執行程式碼的體系結構的技術
 
-- CPU快取介紹
+- CPU 快取介紹
   - 效能的懸崖
   - 圍繞快取行建構直覺：大小，填充，對齊
   - 共享假
@@ -613,7 +616,7 @@ var stripe [8]struct{ sync.Mutex; _ [7]uint64 } //互斥量為64位; 填充填�
 - 關於為什麼內聯很難
 - 使這更容易工具：asmfmt，peachpy，c2goasm，...
 
-## 優化整個服務
+## 優化整個服務 (Optimizing an entire service)
 
 大多數情況下，你不會看到一個CPU限制的例程。這是一個簡單的例子。如果你有優化服務，則需要檢視整個系統。監測。指標。隨著時間的推移記錄很多事情，這樣你可以看到它們變得更糟，所以你可以看到你的更改對生產的影響。
 
@@ -625,6 +628,45 @@ tip.golang.org/doc/diagnostics.html
 - 分散式追蹤以追蹤更高級別的瓶頸
 - 用於查詢單個伺服器而不是批量查詢模式
 - 你的效能問題可能不是你的程式碼，但是你仍然需要解決它們
+
+## Tooling
+
+### Introductory Profiling
+
+This is a quick cheat-sheet for using the pprof tooling.  There are plenty of other guides available on this.
+Check out https://github.com/davecheney/high-performance-go-workshop.
+
+TODO(dgryski): videos?
+
+1. Introduction to pprof
+   - go tool pprof (and <https://github.com/google/pprof>)
+1. Writing and running (micro)benchmarks
+   - small, like unit tests
+   - profile, extract hot code to benchmark, optimize benchmark, profile.
+   - -cpuprofile / -memprofile / -benchmem
+   - 0.5 ns/op means it was optimized away -> how to avoid
+   - tips for writing good microbenchmarks (remove unnecessary work, but add baselines)
+1. How to read it pprof output
+1. What are the different pieces of the runtime that show up
+  - malloc, gc workers
+  - runtime.\_ExternalCode
+1. Macro-benchmarks (Profiling in production)
+   - larger, like end-to-end tests
+   - net/http/pprof, debug muxer
+   - because it's sampling, hitting 10 servers at 100hz is the same as hitting 1 server at 1000hz
+1. Using -base to look at differences
+1. Memory options: -inuse_space, -inuse_objects, -alloc_space, -alloc_objects
+1. Profiling in production; localhost+ssh tunnels, auth headers, using curl.
+1. How to read flame graphs
+
+### Tracer
+
+### Look at some more interesting/advanced tooling
+
+- other tooling in /x/perf
+- perf (perf2pprof)
+- intel vtune / amd codexl / apple instruments
+- https://godoc.org/github.com/aclements/go-perf
 
 ## 附錄：實作研究論文 (Appendix: Implementing Research Papers)
 
