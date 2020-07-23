@@ -248,7 +248,7 @@ TODO：如何模擬滿足的快取，顯示增量成本
 
 類似問題的資料結構在做一件工作時會有所不同。隨著插入的發生，二叉樹每次排序一次。未排序的陣列插入速度更快但未排序：最後，「敲定」你需要一次完成排序。
 
-當撰寫一個供其他人使用的套件時，避免每個用例都要優先考慮的誘惑。這將導致程式碼不可讀。按設計的資料結構實際上是單一用途的。你既不能讀懂頭腦，也不能預測未來。如果使用者說「你的軟體包對於這個用例太慢」，一個合理的答案可能是「然後在這裡使用這個軟體包」。一攬子計劃應該「做得很好」。
+當撰寫一個供其他人使用的套件時，避免每個案例都要優先考慮的誘惑。這將導致程式碼不可讀。按設計的資料結構實際上是單一用途的。你既不能讀懂頭腦，也不能預測未來。如果使用者說「你的軟體包對於這個案例太慢」，一個合理的答案可能是「然後在這裡使用這個軟體包」。一攬子計劃應該「做得很好」。
 
 有時混合資料結構將提供你需要的效能改進。例如，透過分段資料，你可以將搜尋範圍限制在一個儲存桶中。這仍然支付O(n)的理論成本，但常數會更小。當我們進行程式設計調整時，我們將重新審視這些調整。
 
@@ -343,7 +343,7 @@ TODO：<https://github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff2938569
 調校可以採取多種形式。
 
 - 如果可能，請保留舊的實現以進行測試。
-- 如果不可能，則產生足夠的黃金測試用例來比較輸出。
+- 如果不可能，則產生足夠的黃金測試案例來比較輸出。
 - 「足夠」意味著包括極端案例(edge cases)，因為這些可能會受到調優的影響，因為您旨在提高一般情況下的效能。
 - 利用數學的特性：
   - 注意：實作與優化數值計算幾乎是一個專門的領域
@@ -356,8 +356,8 @@ TODO：<https://github.com/golang/go/commit/9eb219480e8de08d380ee052b7bff2938569
     - 或者 mandelbrot 刪除 sqrt，或者 lttb 刪除 abs，`a < b/c` => `a - c < b`
     - 考慮不同的數值表示法：固定點數、浮點數、（更小的）整數
     - 愛好者：帶誤差累加器的整數（如 Bresenham 的線和圓），多基數/冗餘數值系統
-  - 「只為你使用的東西付費，而不是你可以使用的東西」
-    - zero only part of an array, rather than the whole thing
+  - 「只為你使用的東西付費，而不是你可以使用的東西」(編按: 不要過度優化效能，很多東西你根本不用費心調校)
+    - 你只需要清空陣列中部分元素，不用真的去清空整個陣列！
   - 從微小的調整開始，一次只調整幾個陳述式
   - 便宜的條件檢查優先於昂貴的條件檢查
     - 例如：採用 strcmp 優於 regexp ，（參見: bloom filter before query）、讓效率差的部分減少執行次數("do expensive things fewer times")
@@ -634,7 +634,7 @@ tip.golang.org/doc/diagnostics.html
 ### Introductory Profiling
 
 This is a quick cheat-sheet for using the pprof tooling.  There are plenty of other guides available on this.
-Check out https://github.com/davecheney/high-performance-go-workshop.
+Check out <https://github.com/davecheney/high-performance-go-workshop>.
 
 TODO(dgryski): videos?
 
@@ -648,8 +648,10 @@ TODO(dgryski): videos?
    - tips for writing good microbenchmarks (remove unnecessary work, but add baselines)
 1. How to read it pprof output
 1. What are the different pieces of the runtime that show up
-  - malloc, gc workers
-  - runtime.\_ExternalCode
+
+- malloc, gc workers
+- runtime.\_ExternalCode
+
 1. Macro-benchmarks (Profiling in production)
    - larger, like end-to-end tests
    - net/http/pprof, debug muxer
@@ -666,7 +668,7 @@ TODO(dgryski): videos?
 - other tooling in /x/perf
 - perf (perf2pprof)
 - intel vtune / amd codexl / apple instruments
-- https://godoc.org/github.com/aclements/go-perf
+- <https://godoc.org/github.com/aclements/go-perf>
 
 ## 附錄：實作研究論文 (Appendix: Implementing Research Papers)
 
